@@ -1,0 +1,6 @@
+# Reúne las herramientas de network-analyst, web-pentester y directorio-activo.
+DESCRIPCION="Ejercicios de equipo rojo autorizados: red, web y Active Directory"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="nmap masscan wireshark tshark tcpdump netcat-traditional smbclient enum4linux snmp netexec burpsuite zaproxy sqlmap ffuf gobuster wfuzz nikto whatweb wpscan dirb seclists wordlists impacket-scripts bloodhound evil-winrm certipy-ad ldap-utils"
+AVISO="Usa estas herramientas solo en sistemas tuyos o con autorización por escrito."

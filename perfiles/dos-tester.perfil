@@ -1,0 +1,6 @@
+# Pruebas de carga: medir cuánto tráfico aguanta un servicio TUYO antes de degradarse.
+DESCRIPCION="Pruebas de carga y rendimiento sobre servicios propios"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="apache2-utils siege wrk iperf3 curl"
+AVISO="Solo contra servidores tuyos o de laboratorio. Saturar un servicio ajeno es delito aunque sea 'de prueba'."

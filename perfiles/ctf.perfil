@@ -1,0 +1,4 @@
+DESCRIPCION="Competencias Capture The Flag"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="python3-pwntools gdb radare2 binwalk steghide john netcat-traditional libimage-exiftool-perl ropper"

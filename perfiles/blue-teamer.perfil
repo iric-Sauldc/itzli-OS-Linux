@@ -1,0 +1,4 @@
+DESCRIPCION="Blue team: revisión y endurecimiento de sistemas"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="lynis chkrootkit rkhunter clamav yara suricata tshark"

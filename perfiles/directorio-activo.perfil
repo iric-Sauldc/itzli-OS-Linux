@@ -1,0 +1,5 @@
+DESCRIPCION="Auditoría de entornos Windows y Active Directory"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="netexec impacket-scripts bloodhound evil-winrm certipy-ad smbclient ldap-utils"
+AVISO="Usa estas herramientas solo en sistemas tuyos o con autorización por escrito."

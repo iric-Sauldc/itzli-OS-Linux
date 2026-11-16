@@ -1,0 +1,86 @@
+# Configuración de Otearia. Vive en ~/.config/otearia/config.toml
+# Después de cambiar el intervalo ejecuta:  otearia programar
+
+[general]
+intervalo_minutos = 30   # cada cuánto se actualiza sola: 15, 30 o 60
+forma = "barra"          # "barra" (módulo arriba + ventana), "panel" (fijo a la derecha) o "ambas"
+dias_guardados = 30      # las noticias más viejas se borran, salvo tus favoritas
+max_traducciones = 60    # tope por actualización, para que el traductor gratuito no te bloquee
+
+[alertas]
+# Te llega una notificación si una noticia menciona alguna de estas palabras.
+# Ejemplo: palabras = ["Fortinet", "nombre de mi empresa", "PostgreSQL"]
+palabras = []
+cve_criticas = true      # avisar cuando aparezca una vulnerabilidad crítica
+puntuacion_minima = 9.0  # de 0 a 10; 9 o más se considera crítica
+
+[cve]
+dias = 3                 # cuántos días hacia atrás se consultan en la base NVD
+
+[resumen_ia]
+# Opcional. Si dejas url y modelo vacíos, la app funciona igual pero sin el
+# botón "Resumir". Sirve cualquier servicio compatible con el formato de OpenAI.
+#   Servicio en la nube:  url = la dirección base que indique tu proveedor (suele acabar en /v1)
+#   Modelo local (Ollama): url = "http://localhost:11434/v1"  y la clave vacía
+# Ojo: al resumir, el texto de la noticia se envía a ese servicio.
+url = ""
+modelo = ""              # el nombre exacto del modelo según tu proveedor
+clave = ""               # la clave de API; se queda solo en este archivo
+
+# --- Fuentes -----------------------------------------------------------------
+# tema: "ciberseguridad", "ia" o "innovacion".  idioma: "en" se traduce, "es" no.
+# Comprueba cuáles responden con:  otearia fuentes
+
+[[fuentes]]
+nombre = "CISA"
+tema = "ciberseguridad"
+idioma = "en"
+url = "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+
+[[fuentes]]
+nombre = "INCIBE-CERT"
+tema = "ciberseguridad"
+idioma = "es"
+url = "https://www.incibe.es/incibe-cert/alerta-temprana/avisos/feed"
+
+[[fuentes]]
+nombre = "BleepingComputer"
+tema = "ciberseguridad"
+idioma = "en"
+url = "https://www.bleepingcomputer.com/feed/"
+
+[[fuentes]]
+nombre = "The Hacker News"
+tema = "ciberseguridad"
+idioma = "en"
+url = "https://feeds.feedburner.com/TheHackersNews"
+
+[[fuentes]]
+nombre = "Una al Día"
+tema = "ciberseguridad"
+idioma = "es"
+url = "https://unaaldia.hispasec.com/feed"
+
+[[fuentes]]
+nombre = "TechCrunch IA"
+tema = "ia"
+idioma = "en"
+url = "https://techcrunch.com/category/artificial-intelligence/feed/"
+
+[[fuentes]]
+nombre = "The Verge IA"
+tema = "ia"
+idioma = "en"
+url = "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+
+[[fuentes]]
+nombre = "Ars Technica"
+tema = "innovacion"
+idioma = "en"
+url = "https://feeds.arstechnica.com/arstechnica/index"
+
+[[fuentes]]
+nombre = "The Register"
+tema = "innovacion"
+idioma = "en"
+url = "https://www.theregister.com/headlines.atom"

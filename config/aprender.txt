@@ -1,0 +1,15 @@
+# Menú de aprendizaje (SUPER + A). Formato: Nombre | dirección
+# Una dirección "guia:nombre" abre el archivo guias/nombre.md.
+# Agrega o quita líneas a tu gusto; las que empiezan con # se ignoran.
+Guía: primeros pasos en esta distro | guia:primeros-pasos
+Guía: cómo funcionan los perfiles | guia:perfiles
+Guía: laboratorio de malware | guia:laboratorio-malware
+Guía: auditoría wifi | guia:wifi
+TryHackMe: salas guiadas para empezar | https://tryhackme.com
+Hack The Box Academy: cursos por módulos | https://academy.hackthebox.com
+PortSwigger Academy: seguridad web gratis | https://portswigger.net/web-security
+OverTheWire: retos de terminal Linux | https://overthewire.org/wargames
+picoCTF: retos para principiantes | https://picoctf.org
+Documentación de distrobox | https://distrobox.it
+Wiki de Arch Linux | https://wiki.archlinux.org
+Wiki de Hyprland | https://wiki.hypr.land

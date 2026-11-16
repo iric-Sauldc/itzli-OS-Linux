@@ -1,0 +1,4 @@
+DESCRIPCION="Programación y scripting de herramientas propias"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="python3 python3-pip python3-venv golang git build-essential nodejs npm jq"

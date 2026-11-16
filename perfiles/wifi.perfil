@@ -1,0 +1,8 @@
+# RAIZ="si" crea el contenedor con root real: es lo que permite poner la
+# tarjeta en modo monitor. Por eso pedirá tu contraseña al instalar y al entrar.
+DESCRIPCION="Auditoría de redes inalámbricas"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+RAIZ="si"
+PAQUETES="aircrack-ng kismet hcxtools wifite iw"
+AVISO="Este perfil corre con root real, tiene menos aislamiento que los demás. Solo en redes tuyas o autorizadas. Lee la guía: SUPER + A, 'auditoría wifi'."

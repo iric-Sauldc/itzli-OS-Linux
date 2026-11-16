@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+#
+# perfil: instala grupos de herramientas de seguridad dentro de contenedores.
+#
+# La idea: tu Arch queda limpio y cada perfil (estudiante, bugbounty...) vive
+# en su propio contenedor con Kali o BlackArch. Si un perfil se rompe o ya no
+# lo quieres, lo borras y el sistema ni se entera.
+#
+# Un perfil es un archivo de texto en ~/.config/itzli/perfiles/ con cuatro
+# datos: DESCRIPCION, IMAGEN, GESTOR y PAQUETES (más AVISO y RAIZ, opcionales). Para crear uno nuevo, copia
+# uno existente y cámbiale el contenido.
+set -euo pipefail
+
+CARPETA_PERFILES="${ITZLI_PERFILES:-${XDG_CONFIG_HOME:-$HOME/.config}/itzli/perfiles}"
+# Cada perfil tiene su propia carpeta personal. Sin esto, las herramientas de
+# todos los contenedores llenarían tu carpeta de usuario de archivos ocultos
+# y sus configuraciones se pisarían entre sí.
+CARPETA_HOMES="${ITZLI_HOMES:-${XDG_DATA_HOME:-$HOME/.local/share}/itzli/homes}"
+
+error() { printf 'Error: %s\n' "$1" >&2; exit 1; }
+
+ayuda() {
+    cat <<'FIN'
+Uso: perfil <orden> [nombre]
+
+  listar              Muestra los perfiles disponibles y cuáles están instalados
+  ver <nombre>        Muestra qué herramientas trae un perfil
+  instalar <nombre>   Crea el contenedor e instala sus herramientas
+  entrar <nombre>     Abre una terminal dentro del perfil
+  actualizar <nombre> Actualiza las herramientas del perfil
+  borrar <nombre>     Elimina el contenedor y su carpeta personal
+  menu                Menú gráfico para entrar a un perfil instalado
+FIN
+}
+
+# El contenedor de cada perfil se llama "perfil-<nombre>" para distinguirlo
+# de otros contenedores que crees por tu cuenta con distrobox.
+nombre_caja() { printf 'perfil-%s' "$1"; }
+
+# Los perfiles con RAIZ="si" (el de wifi) usan un contenedor con root real,
+# porque solo root puede cambiar el modo de una tarjeta de red. Preguntarle a
+# podman por esos contenedores pediría tu contraseña cada vez, así que se
+# anota su existencia en un archivo marcador.
+existe_caja() {
+    if [[ "${RAIZ:-}" == "si" ]]; then
+        [[ -f "$CARPETA_HOMES/.raiz-$1" ]]
+    else
+        podman container exists "$(nombre_caja "$1")" 2>/dev/null
+    fi
+}
+
+# Toda llamada a distrobox pasa por aquí para añadir --root cuando toca.
+dbx() {
+    local orden="$1"; shift
+    if [[ "${RAIZ:-}" == "si" ]]; then
+        distrobox "$orden" --root "$@"
+    else
+        distrobox "$orden" "$@"
+    fi
+}
+
+# Lee el archivo del perfil y deja sus datos en variables.
+cargar_perfil() {
+    local nombre="${1:-}"
+    [[ -n "$nombre" ]] || error "Falta el nombre del perfil. Prueba: perfil listar"
+    # Solo letras, números y guiones: el nombre acaba formando parte de rutas
+    # y de nombres de contenedor, así que no puede traer barras ni espacios.
+    [[ "$nombre" =~ ^[a-z0-9-]+$ ]] || error "Nombre de perfil no válido: $nombre"
+
+    local archivo="$CARPETA_PERFILES/$nombre.perfil"
+    [[ -f "$archivo" ]] || error "No existe el perfil '$nombre'. Prueba: perfil listar"
+
+    DESCRIPCION="" IMAGEN="" GESTOR="" PAQUETES="" AVISO="" RAIZ=""
+    # shellcheck source=/dev/null
+    source "$archivo"
+
+    [[ -n "$IMAGEN" ]] || error "Al perfil '$nombre' le falta IMAGEN"
+    [[ "$GESTOR" == "apt" || "$GESTOR" == "pacman" ]] \
+        || error "En el perfil '$nombre', GESTOR debe ser apt o pacman"
+}
+
+# Ejecuta un comando como root dentro del contenedor.
+dentro() {
+    local caja="$1"; shift
+    dbx enter "$caja" -- sudo "$@"
+}
+
+orden_listar() {
+    [[ -d "$CARPETA_PERFILES" ]] || error "No hay carpeta de perfiles en $CARPETA_PERFILES"
+    local archivo nombre estado
+    printf '%-16s %-12s %s\n' "PERFIL" "ESTADO" "DESCRIPCIÓN"
+    for archivo in "$CARPETA_PERFILES"/*.perfil; do
+        [[ -e "$archivo" ]] || continue
+        nombre="$(basename "$archivo" .perfil)"
+        cargar_perfil "$nombre"
+        estado="disponible"
+        existe_caja "$nombre" && estado="instalado"
+        printf '%-16s %-12s %s\n' "$nombre" "$estado" "$DESCRIPCION"
+    done
+}
+
+orden_ver() {
+    cargar_perfil "${1:-}"
+    echo "Perfil:      $1"
+    echo "Descripción: $DESCRIPCION"
+    echo "Base:        $IMAGEN"
+    echo "Herramientas:"
+    # Sin comillas a propósito: así Bash separa la lista palabra por palabra.
+    # shellcheck disable=SC2086
+    printf '  %s\n' $PAQUETES
+    [[ -z "$AVISO" ]] || printf '\nAviso: %s\n' "$AVISO"
+}
+
+instalar_paquetes() {
+    local caja="$1" paquete
+    local fallidos=()
+
+    echo "==> Actualizando la lista de paquetes del contenedor"
+    if [[ "$GESTOR" == "apt" ]]; then
+        dentro "$caja" apt-get update
+    else
+        # En Arch y BlackArch se actualiza todo antes de instalar; instalar
+        # sobre un sistema a medio actualizar rompe dependencias.
+        dentro "$caja" pacman -Syu --noconfirm
+    fi
+
+    # Uno por uno en lugar de todos juntos: si un paquete cambió de nombre en
+    # Kali o BlackArch, falla solo ese y el resto se instala igual.
+    # shellcheck disable=SC2086
+    for paquete in $PAQUETES; do
+        echo "==> Instalando $paquete"
+        if [[ "$GESTOR" == "apt" ]]; then
+            # DEBIAN_FRONTEND=noninteractive evita que apt se detenga a hacer
+            # preguntas (wireshark, por ejemplo, las hace).
+            dentro "$caja" env DEBIAN_FRONTEND=noninteractive apt-get install -y "$paquete" \
+                || fallidos+=("$paquete")
+        else
+            dentro "$caja" pacman -S --needed --noconfirm "$paquete" \
+                || fallidos+=("$paquete")
+        fi
+    done
+
+    if (( ${#fallidos[@]} > 0 )); then
+        echo
+        echo "No se pudieron instalar: ${fallidos[*]}"
+        echo "Lo normal es que el paquete haya cambiado de nombre. Búscalo con:"
+        if [[ "$GESTOR" == "apt" ]]; then
+            echo "  distrobox enter $caja -- apt-cache search <palabra>"
+        else
+            echo "  distrobox enter $caja -- pacman -Ss <palabra>"
+        fi
+    fi
+}
+
+orden_instalar() {
+    local nombre="${1:-}"
+    cargar_perfil "$nombre"
+    local caja; caja="$(nombre_caja "$nombre")"
+
+    if [[ -n "$AVISO" ]]; then
+        printf 'Aviso: %s\n\n' "$AVISO"
+    fi
+
+    if existe_caja "$nombre"; then
+        echo "El perfil '$nombre' ya tiene contenedor; solo reviso sus herramientas."
+    else
+        echo "==> Creando el contenedor $caja (la primera vez descarga la imagen, puede tardar)"
+        mkdir -p "$CARPETA_HOMES"
+        dbx create --yes --name "$caja" --image "$IMAGEN" --home "$CARPETA_HOMES/$nombre"
+        if [[ "$RAIZ" == "si" ]]; then touch "$CARPETA_HOMES/.raiz-$nombre"; fi
+    fi
+
+    instalar_paquetes "$caja"
+    echo
+    echo "Perfil '$nombre' listo. Entra con:  perfil entrar $nombre"
+}
+
+orden_entrar() {
+    local nombre="${1:-}"
+    cargar_perfil "$nombre"
+    existe_caja "$nombre" || error "El perfil '$nombre' no está instalado. Usa: perfil instalar $nombre"
+    dbx enter "$(nombre_caja "$nombre")"
+}
+
+orden_actualizar() {
+    local nombre="${1:-}"
+    cargar_perfil "$nombre"
+    existe_caja "$nombre" || error "El perfil '$nombre' no está instalado."
+    local caja; caja="$(nombre_caja "$nombre")"
+    if [[ "$GESTOR" == "apt" ]]; then
+        dentro "$caja" apt-get update
+        dentro "$caja" env DEBIAN_FRONTEND=noninteractive apt-get full-upgrade -y
+    else
+        dentro "$caja" pacman -Syu --noconfirm
+    fi
+}
+
+orden_borrar() {
+    local nombre="${1:-}"
+    cargar_perfil "$nombre"
+    existe_caja "$nombre" || error "El perfil '$nombre' no está instalado."
+
+    # Borrar no se puede deshacer, así que se pregunta siempre.
+    read -r -p "¿Borrar el perfil '$nombre' con todo lo que guardaste dentro? [s/N] " respuesta
+    [[ "$respuesta" == "s" || "$respuesta" == "S" ]] || { echo "Cancelado."; exit 0; }
+
+    dbx rm --force "$(nombre_caja "$nombre")"
+    rm -f "$CARPETA_HOMES/.raiz-$nombre"
+    # ":?" aborta si alguna variable estuviera vacía, para que este rm nunca
+    # pueda apuntar a una carpeta equivocada.
+    rm -rf "${CARPETA_HOMES:?}/${nombre:?}"
+    echo "Perfil '$nombre' eliminado."
+}
+
+# Menú gráfico (SUPER + P): eliges un perfil instalado y se abre una terminal
+# dentro de él, sin tener que recordar el comando.
+orden_menu() {
+    local archivo nombre instalados=""
+    for archivo in "$CARPETA_PERFILES"/*.perfil; do
+        [[ -e "$archivo" ]] || continue
+        nombre="$(basename "$archivo" .perfil)"
+        cargar_perfil "$nombre"
+        existe_caja "$nombre" && instalados+="$nombre"$'\n'
+    done
+
+    if [[ -z "$instalados" ]]; then
+        notify-send "Perfiles" "Aún no hay ninguno instalado. En una terminal: perfil listar"
+        exit 0
+    fi
+
+    local eleccion
+    eleccion="$(printf '%s' "$instalados" | fuzzel --dmenu --prompt 'Perfil: ')" || exit 0
+    [[ -n "$eleccion" ]] || exit 0
+    kitty --title "perfil: $eleccion" perfil entrar "$eleccion"
+}
+
+case "${1:-}" in
+    menu)       orden_menu ;;
+    listar)     orden_listar ;;
+    ver)        orden_ver "${2:-}" ;;
+    instalar)   orden_instalar "${2:-}" ;;
+    entrar)     orden_entrar "${2:-}" ;;
+    actualizar) orden_actualizar "${2:-}" ;;
+    borrar)     orden_borrar "${2:-}" ;;
+    ""|ayuda|-h|--help) ayuda ;;
+    *) ayuda; exit 1 ;;
+esac

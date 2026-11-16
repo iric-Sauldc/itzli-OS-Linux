@@ -1,0 +1,5 @@
+# Perfil para aprender: lo básico de redes y línea de comandos.
+DESCRIPCION="Fundamentos: redes, captura de tráfico y utilidades básicas"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="nmap wireshark tcpdump netcat-traditional curl whois dnsutils python3 python3-pip git seclists wordlists"

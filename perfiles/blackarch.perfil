@@ -1,0 +1,6 @@
+# Perfil sobre BlackArch: sirve de plantilla para herramientas que no estén
+# en Kali. La imagen ya trae configurado el repositorio de BlackArch.
+DESCRIPCION="Base BlackArch con un juego mínimo de herramientas"
+IMAGEN="docker.io/blackarchlinux/blackarch:latest"
+GESTOR="pacman"
+PAQUETES="nmap ffuf sqlmap gobuster"

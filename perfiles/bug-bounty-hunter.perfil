@@ -1,0 +1,6 @@
+# Perfil para programas de recompensas: reconocimiento y pruebas web.
+DESCRIPCION="Reconocimiento y pruebas de aplicaciones web"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="nmap ffuf gobuster nuclei subfinder httpx-toolkit amass sqlmap whatweb nikto seclists wordlists"
+AVISO="Usa estas herramientas solo contra objetivos dentro del alcance de un programa que te autorice."

@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# laboratorio: prepara máquinas virtuales aisladas para analizar malware.
+#
+# Un contenedor comparte el núcleo, la red y tus archivos con el sistema; una
+# máquina virtual es un ordenador completo simulado, con su propio núcleo y
+# disco. Por eso lo que se ejecuta dentro no puede tocar tu sistema.
+#
+# No se instala por defecto porque pesa bastante y no todos los roles lo usan.
+set -euo pipefail
+
+RED="aislada"
+VIRSH=(sudo virsh -c qemu:///system)
+
+preparar() {
+    echo "==> Instalando QEMU/KVM y virt-manager"
+    # qemu-desktop: el emulador. libvirt: el servicio que administra las
+    # máquinas. virt-manager: la ventana para crearlas y controlarlas.
+    # dnsmasq: reparte direcciones dentro de la red aislada.
+    # edk2-ovmf: arranque UEFI, que Windows 11 exige.
+    sudo pacman -S --needed --noconfirm qemu-desktop libvirt virt-manager dnsmasq edk2-ovmf
+
+    echo "==> Activando el servicio de virtualización"
+    sudo systemctl enable --now libvirtd.service
+    # Estar en el grupo libvirt permite usar virt-manager sin escribir la
+    # contraseña a cada paso.
+    sudo usermod -aG libvirt "$USER"
+
+    if "${VIRSH[@]}" net-info "$RED" >/dev/null 2>&1; then
+        echo "==> La red '$RED' ya existía"
+    else
+        echo "==> Creando la red '$RED'"
+        local xml; xml="$(mktemp)"
+        # La clave es lo que FALTA: no hay etiqueta <forward>. Sin ella,
+        # libvirt no deja salir el tráfico a internet ni a tu red local.
+        cat > "$xml" <<'XML'
+<network>
+  <name>aislada</name>
+  <bridge name="virbr-aislada"/>
+  <ip address="10.66.66.1" netmask="255.255.255.0">
+    <dhcp>
+      <range start="10.66.66.10" end="10.66.66.100"/>
+    </dhcp>
+  </ip>
+</network>
+XML
+        "${VIRSH[@]}" net-define "$xml"
+        "${VIRSH[@]}" net-autostart "$RED"
+        "${VIRSH[@]}" net-start "$RED"
+        rm -f "$xml"
+    fi
+
+    cat <<'FIN'
+
+Laboratorio listo. Cierra la sesión y vuelve a entrar para que se aplique el
+grupo nuevo. Después:
+  laboratorio abrir    abre virt-manager para crear tu máquina virtual
+  SUPER + A            y elige "Guía: laboratorio de malware"
+FIN
+}
+
+case "${1:-}" in
+    preparar) preparar ;;
+    abrir)    exec virt-manager ;;
+    *) echo "Uso: laboratorio preparar | abrir"; exit 1 ;;
+esac

@@ -1,0 +1,5 @@
+DESCRIPCION="Auditoría de contraseñas y hashes"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="john hashcat hashid crunch cewl wordlists seclists"
+AVISO="Usa estas herramientas solo en sistemas tuyos o con autorización por escrito."

@@ -1,0 +1,4 @@
+DESCRIPCION="Análisis forense de discos y archivos"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="sleuthkit autopsy foremost scalpel testdisk bulk-extractor binwalk libimage-exiftool-perl guymager"

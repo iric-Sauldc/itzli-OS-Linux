@@ -1,0 +1,4 @@
+DESCRIPCION="Análisis de aplicaciones Android"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="apktool jadx adb dex2jar apksigner"

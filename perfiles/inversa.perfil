@@ -1,0 +1,4 @@
+DESCRIPCION="Ingeniería inversa de binarios"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="ghidra radare2 rizin-cutter gdb strace ltrace binutils"

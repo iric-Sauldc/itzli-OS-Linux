@@ -1,0 +1,44 @@
+ATAJOS DE TECLADO                      (pulsa q para cerrar esta ayuda)
+SUPER es la tecla con el logo de Windows.
+
+  Aplicaciones
+    SUPER + Enter        Terminal
+    SUPER + D            Menú para buscar y abrir aplicaciones
+    SUPER + E            Explorador de archivos
+    SUPER + B            Navegador
+    SUPER + N            Noticias y vulnerabilidades (Otearia)
+    SUPER + F1           Esta ayuda
+
+  Aprender y practicar
+    SUPER + A            Menú de aprendizaje (TryHackMe, Hack The Box, wikis...)
+    SUPER + P            Entrar a un perfil de herramientas instalado
+
+  Ventanas
+    SUPER + Q            Cerrar la ventana activa
+    SUPER + flechas      Cambiar de ventana
+    SUPER + V            Flotante / en mosaico
+    SUPER + J            Cambiar la división (vertical / horizontal)
+    SUPER + clic izq.    Arrastrar la ventana
+    SUPER + clic der.    Cambiar su tamaño
+
+  Espacios de trabajo
+    SUPER + 1..0         Ir al espacio 1 a 10
+    SUPER + SHIFT + 1..0 Mandar la ventana a ese espacio
+
+  Sistema
+    SUPER + L            Bloquear la pantalla
+    SUPER + SHIFT + S    Captura de una zona (queda en el portapapeles)
+    SUPER + SHIFT + M    Cerrar la sesión
+
+HERRAMIENTAS DE SEGURIDAD (en una terminal)
+
+    perfil listar              Ver los perfiles disponibles
+    perfil ver bug-bounty-hunter       Ver qué herramientas trae un perfil
+    perfil instalar bug-bounty-hunter  Crear el contenedor e instalar sus herramientas
+    perfil entrar bug-bounty-hunter    Abrir una terminal dentro de ese perfil
+    perfil borrar bug-bounty-hunter    Eliminarlo por completo
+
+LABORATORIO DE MALWARE (máquinas virtuales aisladas)
+
+    laboratorio preparar       Instalar y configurar (una sola vez)
+    laboratorio abrir          Abrir el gestor de máquinas virtuales

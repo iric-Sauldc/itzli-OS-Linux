@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# aprender: menú con accesos directos a plataformas de práctica y documentación.
+# Lee la lista de ~/.config/itzli/aprender.txt para que puedas cambiarla sin
+# tocar código.
+set -euo pipefail
+
+LISTA="${ITZLI_APRENDER:-${XDG_CONFIG_HOME:-$HOME/.config}/itzli/aprender.txt}"
+[[ -f "$LISTA" ]] || { echo "No encuentro $LISTA" >&2; exit 1; }
+
+# grep quita comentarios y líneas vacías; fuzzel --dmenu muestra las opciones
+# y devuelve la que elijas. "|| exit 0": si cierras el menú con Esc no es un error.
+eleccion="$(grep -v -e '^#' -e '^[[:space:]]*$' "$LISTA" | fuzzel --dmenu --prompt 'Aprender: ')" || exit 0
+
+# La dirección es lo que va después de la última barra vertical.
+url="${eleccion##*|}"
+url="${url// /}"
+# Las entradas "guia:nombre" abren una guía local en vez de una página web,
+# así funcionan también sin internet.
+if [[ "$url" == guia:* ]]; then
+    guia="${XDG_CONFIG_HOME:-$HOME/.config}/itzli/guias/${url#guia:}.md"
+    [[ -f "$guia" ]] || { echo "No encuentro la guía $guia" >&2; exit 1; }
+    exec kitty --class ayuda less "$guia"
+fi
+
+[[ "$url" == https://* ]] || { echo "Línea sin dirección válida: $eleccion" >&2; exit 1; }
+
+xdg-open "$url"

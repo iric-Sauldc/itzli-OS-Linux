@@ -1,0 +1,5 @@
+DESCRIPCION="Auditoría de redes y servicios"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="nmap masscan wireshark tshark tcpdump netcat-traditional smbclient enum4linux snmp netexec"
+AVISO="Usa estas herramientas solo en sistemas tuyos o con autorización por escrito."

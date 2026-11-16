@@ -1,0 +1,5 @@
+DESCRIPCION="Investigación en fuentes abiertas"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="theharvester recon-ng spiderfoot dnsrecon whois libimage-exiftool-perl"
+AVISO="Respeta la privacidad: investiga organizaciones dentro de un encargo autorizado, no a personas particulares."

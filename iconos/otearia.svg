@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Otearia">
+  <!-- Un horizonte y las ondas de algo que se acerca: "otear" es mirar a lo lejos. -->
+  <rect x="8" y="8" width="240" height="240" rx="56" fill="#070b14"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M48 176 A80 80 0 0 1 208 176" stroke="#1b3f8f" stroke-width="14"/>
+    <path d="M76 176 A52 52 0 0 1 180 176" stroke="#2d7dff" stroke-width="14"/>
+    <path d="M104 176 A24 24 0 0 1 152 176" stroke="#9ec5ff" stroke-width="14"/>
+  </g>
+  <rect x="36" y="186" width="184" height="12" rx="6" fill="#9ec5ff"/>
+  <circle cx="186" cy="72" r="14" fill="#ff2e88"/>
+</svg>

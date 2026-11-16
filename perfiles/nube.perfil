@@ -1,0 +1,5 @@
+DESCRIPCION="Seguridad en la nube y contenedores"
+IMAGEN="docker.io/kalilinux/kali-rolling:latest"
+GESTOR="apt"
+PAQUETES="awscli trivy scoutsuite pacu cloud-enum"
+AVISO="Usa estas herramientas solo en sistemas tuyos o con autorización por escrito."
