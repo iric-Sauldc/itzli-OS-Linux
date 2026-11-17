@@ -9,7 +9,10 @@ Lo mínimo para moverte
   SUPER + D       busca y abre una aplicación
   SUPER + Q       cierra la ventana
   SUPER + 1..0    cambia de espacio de trabajo (como escritorios virtuales)
-  SUPER + F1      la lista completa de atajos
+  SUPER + H       la lista completa de atajos del escritorio
+  SUPER + F1      la ayuda propia de Itzli
+  SUPER + W       cambiar el fondo (los colores de todo se ajustan solos)
+  CTRL + ALT + P  menú de apagar, reiniciar y cerrar sesión
 
 La terminal, en cinco comandos
   pwd             dónde estoy
@@ -38,6 +41,8 @@ Por dónde empezar a aprender
   de menos: sin la base, solo estarás copiando comandos.
 
 Si algo se rompe
-  Si la pantalla queda rara: SUPER + SHIFT + M cierra la sesión.
-  Si Hyprland no arranca: en la pantalla de inicio pulsa CTRL + ALT + F3,
-  entra con tu usuario y revisa ~/.config/hypr/hyprland.lua
+  Si la barra o los menús se ven raros: SUPER + ALT + R los recarga.
+  Si la pantalla queda rara: CTRL + ALT + Supr cierra la sesión.
+  Si Hyprland no arranca: en la pantalla de inicio pulsa CTRL + ALT + F3
+  y entra con tu usuario. Tus ajustes están en ~/.config/hypr/UserConfigs
+  y los de Itzli en ~/.config/itzli/hypr

@@ -1,71 +1,82 @@
 # Itzli
 
-Arch Linux con Hyprland, pensado para aprender ciberseguridad. Las herramientas no se instalan en el sistema: van en contenedores, agrupadas por perfil.
+Arch Linux con Hyprland para aprender ciberseguridad. "Itzli" es obsidiana en náhuatl.
 
-Esta es la versión 0.1. Todavía no es una ISO propia; es un instalador que se ejecuta sobre un Arch recién instalado. Así se puede probar y corregir rápido antes de empaquetarlo como distro.
+Las herramientas de seguridad no se instalan en el sistema: van en contenedores, agrupadas por rol (estudiante, bug bounty, analista de malware...).
 
-## Cómo probarlo (en una máquina virtual)
+Esta versión todavía no es una ISO. Es un instalador que se ejecuta sobre un Arch recién instalado.
 
-Pruébalo primero en una máquina virtual (VirtualBox, VMware o GNOME Boxes), no en tu equipo real. Activa la aceleración 3D en la máquina virtual: Hyprland la necesita para dibujar.
+## Cómo está armada
 
-1. Descarga la ISO de Arch desde archlinux.org y arranca la máquina virtual con ella.
-2. Escribe `archinstall`. Es el instalador guiado oficial: te pregunta disco, usuario y contraseña. En el tipo de instalación elige **Minimal** (sin escritorio, porque el nuestro lo pone el script) y en red elige **NetworkManager**. Crea tu usuario con permisos de administrador (sudo).
-3. Reinicia, entra con tu usuario y lleva esta carpeta a la máquina. Lo más cómodo es subirla a un repositorio tuyo de GitHub y clonarla con `git clone`.
-4. Dentro de la carpeta: `./install.sh` (o `./install.sh --simular` para ver qué haría sin tocar nada).
-5. `sudo reboot` y en la pantalla de inicio elige la sesión Hyprland.
+Itzli tiene dos capas.
 
-## Qué hay en la carpeta y para qué sirve cada cosa
+**El escritorio base** es el proyecto de KooL, mantenido hoy por LinuxBeginnings. Instala Hyprland ya configurado: barra, menús, notificaciones, bloqueo, temas y pantalla de inicio. Se descarga al instalar, así que siempre llega su versión más reciente. Esto importa porque Hyprland cambia seguido y ese proyecto se encarga de seguirle el paso.
+
+**La capa de Itzli** va encima: los roles, Otearia, el laboratorio de malware, las guías, el logo, el fondo y los colores.
+
+Las dos capas no se mezclan. El escritorio reserva la carpeta `~/.config/hypr/UserConfigs` para ajustes del usuario y no la pisa al actualizarse. Itzli añade ahí un bloque pequeño que carga sus propios archivos desde `~/.config/itzli/hypr`. Si un archivo de Itzli fallara, el escritorio arranca igual.
+
+## Instalar (pruébalo primero en una máquina virtual)
+
+1. Crea la máquina virtual: 4 GB de RAM, 40 GB de disco, aceleración 3D activada.
+2. Instala Arch con `archinstall`: tipo **Minimal**, red **NetworkManager**, un usuario con sudo y el paquete adicional `git`.
+3. Lleva esta carpeta a la máquina (por ejemplo, con `git clone` desde un repositorio tuyo).
+4. Dentro de la carpeta:
+
+```
+./install.sh --simular    # solo muestra lo que hará
+./install.sh
+sudo reboot
+```
+
+El instalador del escritorio base es interactivo y está en inglés. Antes de abrirlo, Itzli te muestra qué contestar. Lo más importante: cuando al final pregunte si quieres reiniciar, contesta **n**, porque falta la parte de Itzli.
+
+Si algo se corta a la mitad, vuelve a ejecutar `./install.sh`. Detecta lo que ya está hecho y no lo repite.
+
+## Qué hay en la carpeta
 
 | Archivo | Para qué |
 |---|---|
-| `install.sh` | Instala los paquetes, copia la configuración y activa los servicios. Cada bloque explica por qué existe. |
-| `config/hypr/hyprland.lua` | Configuración del escritorio: apariencia, teclado y atajos. |
-| `config/waybar/config.jsonc` | La barra superior. |
-| `config/atajos.txt` | La chuleta que aparece con SUPER + F1. |
-| `config/aprender.txt` | La lista del menú de aprendizaje (SUPER + A). Se edita como texto. |
-| `perfil` | El comando que crea los contenedores e instala las herramientas. |
-| `aprender` | El menú que abre guías locales, TryHackMe, Hack The Box, wikis, etc. |
+| `install.sh` | Instala las dos capas. Cada paso explica por qué existe. |
+| `base/preset.conf` | Qué opciones del escritorio base quedan marcadas (la instalación "recortada"). |
+| `hypr/*.lua` | Atajos, arranque y reglas de ventanas que Itzli añade al escritorio. |
+| `sddm/theme.conf.user` | Fondo, colores y textos en español para la pantalla de inicio. |
+| `fondos/` | El fondo de escritorio y el de la pantalla de inicio. |
+| `iconos/` | El logo de Itzli (completo, pequeño y de un color) y el icono de Otearia. |
+| `perfil`, `perfiles/` | El comando que crea los contenedores, y un archivo por rol. |
+| `aprender`, `config/aprender.txt` | El menú de aprendizaje y su lista editable. |
 | `laboratorio` | Prepara máquinas virtuales aisladas para análisis de malware. |
-| `otearia/` | La app de noticias, con su propio `LEEME.md` e instalador. |
-| `iconos/` | El logo de la distro y el icono de Otearia, en SVG. |
-| `config/guias/*.md` | Guías para principiantes: primeros pasos, perfiles, malware y wifi. |
-| `perfiles/*.perfil` | Un archivo por perfil, con su lista de herramientas. |
+| `itzli-menu` | El menú común que usan los comandos anteriores. |
+| `otearia/` | La app de noticias, con su propio `LEEME.md`. |
+| `config/guias/` | Guías para principiantes. |
+| `CREDITOS.md` | De dónde viene el escritorio base y qué implican sus licencias. |
 
-## Por qué está hecho así
+## Decisiones y sus porqués
 
-**Arch como base.** Hyprland cambia muy rápido y Arch entrega siempre la versión reciente. En Ubuntu habría que compilarlo a mano.
+**Los colores salen del fondo.** El escritorio base genera la paleta de toda la interfaz a partir del fondo de pantalla. Itzli deja su fondo azul como fondo inicial y con eso todo sale en azules, sin tocar ningún tema. Si cambias de fondo con SUPER + W, los colores cambian con él.
 
-**Configuración en Lua.** Desde Hyprland 0.55 la configuración es un archivo Lua y desde la 0.57 el formato antiguo `hyprland.conf` dejó de funcionar. Muchos tutoriales en internet siguen mostrando el formato viejo; no sirven aquí.
+**El contador de Otearia vive en un diseño de barra propio.** El instalador copia el diseño de barra en uso, le añade el módulo y activa la copia (termina en `-Itzli`). El diseño original queda intacto. Si eliges otro diseño con SUPER + ALT + B, el contador desaparece de la barra, pero las alertas y SUPER + N siguen funcionando.
 
-**Contenedores con distrobox.** Kali y BlackArch traen miles de herramientas con dependencias que chocan entre sí y con el sistema. Dentro de un contenedor pueden romperse sin afectar a tu Arch, y se borran con un comando. Distrobox se usa sobre Podman porque Podman funciona sin root.
+**La pantalla de inicio usa `theme.conf.user`.** SDDM lee ese archivo después del `theme.conf` del tema, así que los valores de Itzli ganan sin modificar el tema original.
 
-**Cada perfil con su carpeta personal.** Vive en `~/.local/share/itzli/homes/<perfil>`, para que las herramientas no llenen tu carpeta de usuario de archivos ocultos.
+**Contenedores con distrobox sobre Podman.** Kali y BlackArch traen miles de herramientas que chocan entre sí. En un contenedor pueden romperse sin afectar al sistema, y Podman funciona sin root.
 
-**Paquetes instalados uno por uno.** Los nombres en Kali cambian con el tiempo. Si uno falla, el resto se instala y al final se te dice cuáles faltaron y cómo buscarlos.
-
-## Los perfiles
-
-`perfil listar` muestra los 19 (los 12 roles de Athena y 7 extra). Para crear uno propio, copia cualquier archivo de `~/.config/itzli/perfiles/`, cámbiale el nombre y edita sus cuatro líneas:
-
-```
-DESCRIPCION="Qué es"
-IMAGEN="docker.io/kalilinux/kali-rolling:latest"
-GESTOR="apt"            # apt para Kali, pacman para BlackArch
-PAQUETES="nmap curl"
-```
+**Atajos en combinaciones libres.** Itzli no cambia ningún atajo del escritorio. Usa SUPER + N, SUPER + F1, SUPER + ALT + A y SUPER + ALT + I, que estaban sin usar.
 
 ## Dos advertencias importantes
 
-**Un contenedor de distrobox no es una caja fuerte.** Comparte tu red, tus dispositivos y puede llegar a tus archivos. Protege al sistema de paquetes rotos, no de programas maliciosos. Para ejecutar una muestra de malware real se usa una máquina virtual aislada y sin red, nunca el perfil `malware-analyst`, que es solo para análisis estático (mirar el archivo sin ejecutarlo).
+**Un contenedor de distrobox no es una caja fuerte.** Comparte tu red y puede llegar a tus archivos. Protege al sistema de paquetes rotos, no de programas maliciosos. Para ejecutar una muestra de malware real usa el laboratorio (`laboratorio preparar`), nunca el rol `malware-analyst`, que es solo para análisis estático.
 
-**Las herramientas ofensivas solo se usan con permiso.** Contra tus propios equipos, laboratorios como TryHackMe o Hack The Box, o programas de bug bounty dentro de su alcance. Fuera de eso es delito en casi cualquier país.
+**Las herramientas ofensivas solo se usan con permiso.** Contra tus propios equipos, laboratorios como TryHackMe o Hack The Box, o programas de bug bounty dentro de su alcance.
 
-## Qué no se ha probado
+## Qué se ha probado y qué no
 
-Los scripts pasaron revisión de sintaxis y pruebas de lógica con programas simulados. No se han ejecutado en un Arch real ni se ha arrancado Hyprland con esta configuración: esa prueba es la tuya en la máquina virtual. Los nombres de algunos paquetes de Kali pueden haber cambiado; el comando te avisará de cuáles.
+Probado contra una copia real de la configuración del escritorio base: los archivos del escritorio cargan los atajos, reglas y arranque de Itzli; el diseño de barra generado es válido; el instalador se puede repetir sin duplicar nada.
+
+Sin probar: la instalación completa en un Arch real con las dos capas, el aspecto final de la pantalla de inicio y de la barra, y que los colores salgan en azul. Esa prueba es en tu máquina virtual.
 
 ## Siguientes pasos previstos
 
-- ISO instalable propia.
-- Exportar al menú de aplicaciones las herramientas gráficas de cada perfil (Burp Suite, Wireshark, Ghidra).
-- Fondo de pantalla, tema y pantalla de bloqueo propios.
+- Exportar al menú de aplicaciones las herramientas gráficas de cada rol (Burp Suite, Wireshark, Ghidra).
+- Pantalla de bienvenida para elegir rol con un clic.
+- ISO instalable.

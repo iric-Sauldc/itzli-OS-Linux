@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# itzli-menu: muestra una lista y devuelve la opción elegida.
+# Uso:  printf 'uno\ndos\n' | itzli-menu "Título"
+#
+# Los menús de Itzli pasan por aquí para no depender de un programa concreto:
+# con el escritorio base se usa rofi, con su mismo aspecto; sin él, fuzzel.
+set -euo pipefail
+titulo="${1:-Itzli}"
+
+if command -v rofi >/dev/null 2>&1; then
+    for tema in "$HOME/.config/hypr/rofi/config.rasi" "$HOME/.config/rofi/config.rasi"; do
+        if [[ -f "$tema" ]]; then
+            exec rofi -dmenu -i -p "$titulo" -config "$tema"
+        fi
+    done
+    exec rofi -dmenu -i -p "$titulo"
+elif command -v fuzzel >/dev/null 2>&1; then
+    exec fuzzel --dmenu --prompt "$titulo: "
+else
+    echo "No hay ningún programa de menús instalado (rofi o fuzzel)." >&2
+    exit 1
+fi

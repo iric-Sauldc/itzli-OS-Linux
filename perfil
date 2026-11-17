@@ -229,7 +229,7 @@ orden_menu() {
     fi
 
     local eleccion
-    eleccion="$(printf '%s' "$instalados" | fuzzel --dmenu --prompt 'Perfil: ')" || exit 0
+    eleccion="$(printf '%s' "$instalados" | itzli-menu 'Perfil')" || exit 0
     [[ -n "$eleccion" ]] || exit 0
     kitty --title "perfil: $eleccion" perfil entrar "$eleccion"
 }
